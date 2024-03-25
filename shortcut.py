@@ -1,4 +1,4 @@
-#!/bin/python3.6
+#!/bin/python3
 
 # Joey Guarino
 # Mar 2024
@@ -13,22 +13,37 @@ def run(cmd) -> str:
     proc = sp.Popen(cmd, shell=True, stdout=sp.PIPE)
     return str(proc.stdout.read())[2:-3]
 
+# creates a symlink on the user's desktop to a specified file or directory
 def create_link():
-    pass
+    file = input("Enter the file to link to: ")
+    name = input("Enter a name for the symlink: ")
+    run(f"ln -s {file} $HOME/Desktop/{name}")
+    print(f"Created a symlink to {file} on your desktop named {name}")
 
+# deletes an symlink from the user's desktop
 def del_link():
-    pass
+    del_link = input("Enter the name of the link on your desktop that you would like to be deleted: ")
+    run(f"rm $HOME/Desktop/{del_link}")
+    print(f"Deleted {del_link}")
 
+# summarizes the symlinks on the user's desktop
 def summary():
-    pass
+    links = run("find $HOME/Desktop -type l").split("\\n")
+    print(f"\nFound {len(links)} symlinks on your desktop\n{BREAK}")
+    start = len(run("echo $HOME/Desktop/"))
+    for link in links:
+        name = link[start:]
+        to = run(f"readlink {link}")
+        print(f"\t{name}: {to}")
 
+# displays the menu
 def menu():
     print("Shortcuts Menu")
     print(BREAK)
-    print("\t\{1\} Create symbolic link")
-    print("\t\{2\} Delete symbolic link")
-    print("\t\{3\} Summarize links on desktop")
-    print("\t\{4\} Exit")
+    print("\t{1} Create symbolic link")
+    print("\t{2} Delete symbolic link")
+    print("\t{3} Summarize links on desktop")
+    print("\t{4} Exit")
 
 def main():
     run("clear")
