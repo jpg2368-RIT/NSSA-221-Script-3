@@ -13,21 +13,41 @@ def run(cmd) -> str:
     proc = sp.Popen(cmd, shell=True, stdout=sp.PIPE)
     return str(proc.stdout.read())[2:-3]
 
+# checks if a file exists
+def exists(file: str) -> bool:
+    try:
+        with open(file) as file2:
+            pass
+        return True
+    except:
+        return False
+
 # creates a symlink on the user's desktop to a specified file or directory
-def create_link():
+def create_link() -> None:
     file = input("Enter the file to link to: ")
-    name = input("Enter a name for the symlink: ")
-    run(f"ln -s {file} $HOME/Desktop/{name}")
-    print(f"Created a symlink to {file} on your desktop named {name}")
+    if exists(file):
+        home = run("echo $HOME/Desktop")
+        name = input("Enter a name for the symlink: ")
+        if not exists(f"{home}/{name}"):
+            run(f"ln -s {file} {home}/{name}")
+            print(f"Created a symlink to {file} on your desktop named {name}")
+        else:
+            print(f"Symlink {name} already exists on your desktop...")
+    else:
+        print("File {file} does not exist...")
 
 # deletes an symlink from the user's desktop
-def del_link():
+def del_link() -> None:
     del_link = input("Enter the name of the link on your desktop that you would like to be deleted: ")
-    run(f"rm $HOME/Desktop/{del_link}")
-    print(f"Deleted {del_link}")
+    home = run("echo $HOME/Desktop")
+    if exists(f"{home}/{del_link}"):
+        run(f"rm $HOME/Desktop/{del_link}")
+        print(f"Deleted {del_link}")
+    else:
+        print(f"Symlink {home}/{del_link} does not exist...")
 
 # summarizes the symlinks on the user's desktop
-def summary():
+def summary() -> None:
     links = run("find $HOME/Desktop -type l").split("\\n")
     print(f"\nFound {len(links)} symlinks on your desktop\n{BREAK}")
     start = len(run("echo $HOME/Desktop/"))
@@ -37,7 +57,7 @@ def summary():
         print(f"\t{name}: {to}")
 
 # displays the menu
-def menu():
+def menu() -> None:
     print("Shortcuts Menu")
     print(BREAK)
     print("\t{1} Create symbolic link")
@@ -50,7 +70,7 @@ def main():
     while True:
         menu()
         choice = input("Enter a choice number: ")
-        if choice == "4":
+        if choice == "4" or "quit":
             break
         if choice == "1":
             create_link()
