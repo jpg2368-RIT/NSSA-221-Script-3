@@ -70,7 +70,7 @@ def main():
     while True:
         menu()
         choice = input("Enter a choice number: ")
-        if choice == "4" or "quit":
+        if choice in {"4", "quit"}:
             break
         if choice == "1":
             create_link()
