@@ -10,41 +10,33 @@ BREAK = "-----------------------------------------------"
 
 # runs a command and returns the result
 def run(cmd) -> str:
-    proc = sp.Popen(cmd, shell=True, stdout=sp.PIPE)
+    proc = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.DEVNULL)
     return str(proc.stdout.read())[2:-3]
-
-# checks if a file exists
-def exists(file: str) -> bool:
-    try:
-        with open(file) as file2:
-            pass
-        return True
-    except:
-        return False
 
 # creates a symlink on the user's desktop to a specified file or directory
 def create_link() -> None:
-    file = input("Enter the file to link to: ")
-    if exists(file):
+    file = input("Enter the name (or the full file path) of the file to link to: ")
+    found_file = file if file[0] == "/" else run(f"find / -name {file}")
+    if found_file != "" and run(f"ls {found_file}") != "":
         home = run("echo $HOME/Desktop")
         name = input("Enter a name for the symlink: ")
-        if not exists(f"{home}/{name}"):
-            run(f"ln -s {file} {home}/{name}")
-            print(f"Created a symlink to {file} on your desktop named {name}")
+        if run(f"ls {home}/{name}") == "":
+            run(f"ln -s {found_file} {home}/{name}")
+            print(f"Created a symlink to {found_file} on your desktop named {name}")
         else:
             print(f"Symlink {name} already exists on your desktop...")
     else:
-        print("File {file} does not exist...")
+        print(f"File {file} does not exist...")
 
 # deletes an symlink from the user's desktop
 def del_link() -> None:
     del_link = input("Enter the name of the link on your desktop that you would like to be deleted: ")
-    home = run("echo $HOME/Desktop")
-    if exists(f"{home}/{del_link}"):
+    home = run("echo $HOME")
+    if run(f"ls {home}/Desktop/{del_link}") != "":
         run(f"rm $HOME/Desktop/{del_link}")
         print(f"Deleted {del_link}")
     else:
-        print(f"Symlink {home}/{del_link} does not exist...")
+        print(f"Symlink {home}/Desktop/{del_link} does not exist...")
 
 # summarizes the symlinks on the user's desktop
 def summary() -> None:
